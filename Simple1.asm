@@ -14,11 +14,20 @@ start
 	movwf	TRISD, A	    ; Port D Direction Register
 	bsf	PADCFG1,RDPU, A	    ; Turn on pull-ups for Port D
 	movff	PORTD,0x08
+	
+	movlw	0xff
+	movwf	0x20 ; store 0x10 in FR 0x20 
+	
 	movlw 	0x0
-	bra 	test		    ; 
-
+	
+	bra 	test
+	
+	
 loop	movff 	0x06, PORTC	    ; outputs, to port C
 	incf 	0x06, W, ACCESS	    ; +=1, moves f+1 into W memm
+	movff	0x20, 0x22
+	    
+	call	 delay
 
 test	movwf	0x06, ACCESS	    ; moves W to 0x06,
 	movf 	PORTD,W		    ; moves f to W,
@@ -26,5 +35,22 @@ test	movwf	0x06, ACCESS	    ; moves W to 0x06,
  	bra 	loop		    ; Not yet finished goto start of loop again
 	goto 	0x0		    ; Re-run program from start, jumps back to org 0x0
 	
+delay	movff	0x20, 0x26
+	call delay1
+	decfsz 0x22 ; decrement until zero
+	bra delay
+	return
+
+delay1	movff	0x20, 0x24
+	call delayy
+	decfsz 0x26 ; decrement until zero
+	bra delay1
+	return
+	
+delayy	decfsz 0x24 ; decrement until zero
+	bra delayy
+	return
 	end
-; W special register - arithmetic operations, f file, l literal value, ACCESS BANK GOOD,
+	
+
+	; W special register - arithmetic operations, f file, l literal value, ACCESS BANK GOOD,
