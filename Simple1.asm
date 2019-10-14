@@ -6,29 +6,34 @@
 	
 	org 0x100		    ; Main code starts here at address 0x100
 
-main
-	movlw	0x03		    ;Sets time for the delay
-	movwf	0x20		    ; store 0x10 in FR 0x20 
+main	;Set time for delay
+	movlw	0x03		    
+	movwf	0x20		    
 	
-	movlw 	0x0		    ; Sets PORTD as output
-	movwf	TRISD, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
+	;Setup ports
+	movlw 	0x0		    
+	movwf	TRISD, ACCESS	    
 	movwf	TRISC, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
-	movwf	TRISH, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
-
-	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movwf	TRISH, ACCESS	    
+	
+	;Resets output ports 
+	movlw	0x00		    
 	movwf	PORTE
-	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movlw	0x00		    
 	movwf	PORTC
-	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movlw	0x00		   
 	movwf	PORTH
 	
-	movlw	0x0f		    ; Sets OE1,CP1 as HIGH
+	;Resets portD, so that no reading or writing
+	movlw	0x0f		    
 	movwf	PORTD
 	
-	movlw 	0x0		    ; Sets E as output
+	;set E as output (to write into the memory)
+	movlw 	0x0		    ; Sets E as  output
 	movwf	TRISE, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
 	bsf	PADCFG1,REPU, A	    ; Turn on pull-ups for Port E, 
 	
+	;write into memory 1
 	movlw	0xab		    ; stores arbitary value in E, for transfer
 	movwf	PORTE	    
 	movlw	0x0d		    ; Turns off CP1--> OE1 High only
@@ -37,30 +42,35 @@ main
 	call	delay
 	movlw	0x0f		    ; Turns CP1,OE1 ON
 	movwf	PORTD
-
+	
+	;write into memory 2
 	movlw	0x54		    ; stores arbitary value in E, for transfer
 	movwf	PORTE	    
-	movlw	0x07		    ; Turns off CP1--> OE1 High only
+	movlw	0x07		    ; Turns off CP2--> OE2 High only
 	movwf	PORTD
 	movff	0x20, 0x22	    ; prep delay
 	call	delay
-	movlw	0x0f		    ; Turns CP1,OE1 ON
+	movlw	0x0f		    ; Turns CP2,OE2 ON
 	movwf	PORTD
 	
+	;set E as input (to read the memory)
 	movlw	0xff		    ; sets E as input
 	movwf	TRISE, A	    ; Port E Direction Register
-	movlw	0x0e		    ; SETS OE1 low, CP1 High n(for data read)
-	movwf	PORTD	
 	
+	;read memory 1
+	movlw	0x0e		    ; Sets OE1 low(for data read)
+	movwf	PORTD	
 	movff	PORTE,PORTC
-	movlw	0x0b		    ; SETS OE2 low, CP2 High n(for data read)
+	;read memory 2
+	movlw	0x0b		    ; SETS OE2 low(for data read)
 	movwf	PORTD
 	movff	0x20, 0x22
 	call	delay
 	movff	PORTE,PORTH
-	movlw	0x0f		    ; SETS OE2 low, CP2 High n(for data read)
-	movwf	PORTD
 	
+	;resets Port D
+	movlw	0x0f		    ; Resets so no reading/ writing
+	movwf	PORTD
 	
 	goto	0x0
 	
@@ -72,21 +82,4 @@ delay	movff	0x20, 0x26
 delay1	decfsz	0x26 ; decrement until zero
 	bra	delay1
 	return
-
-delayL	movff	0x20, 0x26  ;long delay
-	call	delay1L
-	decfsz	0x22 ; decrement until zero
-	bra	delayL
-	return
-delay1L	movff	0x20,0x24
-	call	delay2L
-	decfsz	0x26 
-	bra	delay1L
-	return
-delay2L	decfsz	0x24
-	bra	delay2L
-	return	
 	end
-	
-
-	; W special register - arithmetic operations, f file, l literal value, ACCESS BANK GOOD,
