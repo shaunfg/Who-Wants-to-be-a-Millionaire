@@ -2,54 +2,67 @@
 	
 	code
 	org 0x0
-	goto	start
+	goto	main
 	
 	org 0x100		    ; Main code starts here at address 0x100
 
-start
-	movlw 	0x0
-	movwf	TRISC, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
-
-	movlw	0xff		    ; all bits in
-	movwf	TRISD, A	    ; Port D Direction Register
-	bsf	PADCFG1,RDPU, A	    ; Turn on pull-ups for Port D
-	movff	PORTD,0x08
-	
-	movlw	0xff
+main
+	movlw	0xff		    ;Sets time for the delay
 	movwf	0x20 ; store 0x10 in FR 0x20 
 	
-	movlw 	0x0
+	movlw 	0x0		    ; Sets PORTD as output
+	movwf	TRISD, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
 	
-	bra 	test
+	movlw	0x03		    ; Sets OE1,CP1 as HIGH
+	movwf	PORTD
 	
+	movlw 	0x0		    ; Sets E as output
+	movwf	TRISE, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
 	
-loop	movff 	0x06, PORTC	    ; outputs, to port C
-	incf 	0x06, W, ACCESS	    ; +=1, moves f+1 into W memm
-	movff	0x20, 0x22
-	    
-	call	 delay
-
-test	movwf	0x06, ACCESS	    ; moves W to 0x06,
-	movf 	PORTD,W		    ; moves f to W,
-	cpfsgt 	0x06, ACCESS	    ; compares 0x06 to W,
- 	bra 	loop		    ; Not yet finished goto start of loop again
-	goto 	0x0		    ; Re-run program from start, jumps back to org 0x0
+	movlw	0xab		    ; stores arbitary value in E, for transfer
+	movwf	PORTE	    
+	
+	movlw	0x01		    ; Turns off CP1--> OE1 High only
+	movwf	PORTD
+	
+	movff	0x20, 0x22	    ; prep delay
+	call	delay
+	
+	movlw	0x03		    ; Turns CP1,OE1 ON
+	movwf	PORTD
+	
+	movlw	0xff		    ; sets E as input
+	movwf	TRISE, A	    ; Port E Direction Register
+	bsf	PADCFG1,RDPU, A	    ; Turn on pull-ups for Port E
+	
+	movlw	0x02		    ; SETS OE1 low, CP1 High n(for data read)
+	movwf	PORTD	
+	
+	call	delayL		    ; delay to observe result
+	goto	0x0
 	
 delay	movff	0x20, 0x26
-	call delay1
-	decfsz 0x22 ; decrement until zero
-	bra delay
+	call	delay1
+	decfsz	0x22 ; decrement until zero
+	bra	delay
+	return
+delay1	decfsz	0x26 ; decrement until zero
+	bra	delay1
 	return
 
-delay1	movff	0x20, 0x24
-	call delayy
-	decfsz 0x26 ; decrement until zero
-	bra delay1
+delayL	movff	0x20, 0x26  ;long delay
+	call	delay1L
+	decfsz	0x22 ; decrement until zero
+	bra	delayL
 	return
-	
-delayy	decfsz 0x24 ; decrement until zero
-	bra delayy
+delay1L	movff	0x20,0x24
+	call	delay2L
+	decfsz	0x26 ; decrement until zero
+	bra	delay1L
 	return
+delay2L	decfsz	0x26 ; decrement until zero
+	bra	delay1
+	return	
 	end
 	
 
