@@ -14,6 +14,13 @@ main
 	movwf	TRISD, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
 	movwf	TRISC, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
 	movwf	TRISH, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
+
+	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movwf	PORTE
+	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movwf	PORTC
+	movlw	0x00		    ; Sets OE1,CP1 as HIGH
+	movwf	PORTH
 	
 	movlw	0x0f		    ; Sets OE1,CP1 as HIGH
 	movwf	PORTD
@@ -47,8 +54,13 @@ main
 	
 	movff	PORTE,PORTC
 	movlw	0x0b		    ; SETS OE2 low, CP2 High n(for data read)
-	movwf	PORTD		
+	movwf	PORTD
+	movff	0x20, 0x22
+	call	delay
 	movff	PORTE,PORTH
+	movlw	0x0f		    ; SETS OE2 low, CP2 High n(for data read)
+	movwf	PORTD
+	
 	
 	goto	0x0
 	
