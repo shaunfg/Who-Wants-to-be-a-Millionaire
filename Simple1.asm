@@ -11,15 +11,17 @@ main	call	SPI_MasterInit
 	movlw	0xab
 	call	SPI_MasterTransmit
 	call	Wait_Transmit
+
 	
-	goto	0x0
+loop
+	goto	loop
 
 
 SPI_MasterInit ; Set Clock edge to negative
 	bcf	SSP2STAT, CKE
 	; MSSP enable; CKP=1; SPI master, clock=Fosc/64 (1MHz)
 
-	movlw	(1<<SSPEN)|(1<<CKP)|(0x02)    ; tells how to consruct a byte ; SSPEN deefined, << shift left by SSPEN - 2*SSPEN, | logical or, setting 3 bits. 
+	movlw	(1<<SSPEN)|(1<<CKP)|(0x02)    ; tells how to consruct a byte ; SSPEN defined, << shift left by SSPEN - 2*SSPEN, | logical or, setting 3 bits. 
 	movwf	SSP2CON1	    ;constructs a number, to set SSP2CON1 for a certain function. 
 	; written this way 
 	
@@ -47,4 +49,11 @@ delay	movff	0x20, 0x26
 delay1	decfsz	0x26 ; decrement until zero
 	bra	delay1
 	return
+	
+test_light
+	movlw 	0x00
+	movwf	TRISD, ACCESS	    ; Port C all outputs, sets C to zero, TRISC - sets into not 0/1, to control
+	
+	movlw	0x54
+	movwf	PORTD
 	end
