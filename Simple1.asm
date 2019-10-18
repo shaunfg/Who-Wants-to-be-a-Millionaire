@@ -12,7 +12,10 @@ main	call	SPI_MasterInit
 	call	SPI_MasterTransmit
 	call	Wait_Transmit
 
-	
+	call	SPI_MasterInit
+	movlw	0x01
+	call	SPI_MasterTransmit
+	call	Wait_Transmit
 loop
 	goto	loop
 
