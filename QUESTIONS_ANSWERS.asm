@@ -6,7 +6,7 @@
 	extern	UART_Transmit_Message,LCD_Write_Message
 	extern	LCD_Cursor_A,LCD_Cursor_B,LCD_Cursor_C,LCD_Cursor_D
 	extern	LCD_Cursor_Remove,LCD_Cursor_AnsC,LCD_Cursor_AnsW
-	extern	wait_press, LCD_Clear_Display
+	extern	wait_press, LCD_Clear_Display, LED_Correct
 
 
 acs0	udata_acs   ; reserve data space in access ram
@@ -57,7 +57,6 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	return
 	
 Check_Answers
-
 	movff	POSTINC1,0x55
 	subwf	0x55
 	BZ	Correct_Answer
@@ -86,8 +85,6 @@ loop_w 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	call	LCD_Write_Message
 	
 	goto	$
-	
-	goto	0x0
 	return
 	
 Correct_Answer
@@ -111,6 +108,11 @@ loop_c 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	call	LCD_Cursor_AnsC
 	movlw	myCorrect_1	; output message to LCD (leave out "\n")
 	call	LCD_Write_Message
+	
+	call	LED_Correct
+	
+	call	delay_L
+	call	LCD_Clear_Display
 	
 ;	call	wait_press
 ;	BRA	Wrong_Answer
@@ -177,6 +179,4 @@ loop_2 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	call	LCD_Cursor_Remove
 	return
 
-; Checking if answer is correct
-Check_Answer
 	end
