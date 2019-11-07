@@ -21,16 +21,12 @@ pdata	code    ; a section of programme memory for storing data
 	
 myTable data	    "What are the Initials of Blackett?\n"	; message, plus carriage return
 	constant    myTable_l=.35	; length of data
-
 answers db	    0x0A,0x0B,0x0C,0x0D,0x0A,0x0B,0x0C,0x0D 	; message, plus carriage return
 	constant    n_answers=.8	; length of data
-	
 A_1	data	    "PMWPMSPSMPS4"	; message, plus carriage return
 	constant    options_1=.3	; length of data
-	
 myWrong data	    "Incorrect!"	; message, plus carriage return
 	constant    myWrong_1=.10	; length of data
-	
 myCorrect data	    "Correct!"	; message, plus carriage return
 	constant    myCorrect_1=.8	; length of data
 	
@@ -55,7 +51,8 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	bra	loop_a
 	
 	return
-	
+
+;########################## Check Answers ##############################
 Check_Answers
 	movff	POSTINC1,0x55
 	subwf	0x55
@@ -119,7 +116,7 @@ loop_c 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	
 	return
 	
-    ;Sends question to screen
+;######################## Send Question to Screen #############################
 Send_UART_Question_1
 	lfsr	FSR0, myArray	; Load FSR0 with address in RAM	
 	movlw	upper(myTable)	; address of data in PM
@@ -142,7 +139,7 @@ loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 
 	return		; goto current line in code
 
-; Writes answer options on LCD
+;######################## Send Answer to LCD #############################
 Send_Ans_LCD
 	lfsr	FSR0, myArray	; Load FSR0 with address in RAM	
 	movlw	upper(A_1)	; address of data in PM
