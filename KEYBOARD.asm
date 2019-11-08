@@ -1,9 +1,9 @@
 	#include p18f87k22.inc
 	
 	global	Key_In, wait_press
+	extern	zero,one,two,three
 
 acs2	udata_acs   ; reserve data space in access ram
-zero	res 1   ; reserve one byte for counter in the delay routine
 dly1	res 1
 dly2	res 1
 dly3	res 1

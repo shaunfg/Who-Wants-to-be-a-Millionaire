@@ -3,6 +3,7 @@
     global  LCD_Setup, LCD_Write_Message, LCD_Write_Hex, LCD_Send_Byte_D
     global  LCD_Set_Cursor, LCD_Clear_Display
     global  LCD_Cursor_A,LCD_Cursor_B,LCD_Cursor_C,LCD_Cursor_D,LCD_Cursor_Remove,LCD_Cursor_AnsC,LCD_Cursor_AnsW
+    global  LCD_Clear_A,LCD_Clear_B,LCD_Clear_C,LCD_Clear_D
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
 LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h

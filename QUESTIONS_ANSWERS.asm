@@ -1,21 +1,31 @@
 
-
 	#include p18f87k22.inc
 	
 	global	Send_UART_Question_1, Send_Ans_LCD,Check_Answers,Q_A_Setup
-	extern	UART_Transmit_Message,LCD_Write_Message
+	extern	UART_Transmit_Message,LCD_Write_Message, UART_Transmit_Byte
 	extern	LCD_Cursor_A,LCD_Cursor_B,LCD_Cursor_C,LCD_Cursor_D
+	extern	LCD_Clear_A,LCD_Clear_B,LCD_Clear_C,LCD_Clear_D
 	extern	LCD_Cursor_Remove,LCD_Cursor_AnsC,LCD_Cursor_AnsW
-	extern	wait_press, LCD_Clear_Display, LED_Correct
-
+	extern	wait_press, LCD_Clear_Display, LED_Correct,delay_L
+	extern	rand_0_to_2
+	extern	zero,one,two,three
+	
 
 acs0	udata_acs   ; reserve data space in access ram
 counter	    res 1   ; reserve one byte for a counter variable
- 
+answer_add  res 1
+fifty_fifty_var res 1
+call_friend_var res 1
+audience_var    res 1
+A_ans_var    res 1
+B_ans_var    res 1
+C_ans_var    res 1
+D_ans_var    res 1
+  
 tables	udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
 myArray res 0x80    ; reserve 128 bytes for message data
-myAnswers res 0x10    ; reserve 128 bytes for message data
- 	
+myAnswers res 0x10    ; reserve 128 bytes for message data 	
+ 
 pdata	code    ; a section of programme memory for storing data
 	; ******* myTable, data in programme memory, and its length *****v
 	
@@ -27,12 +37,21 @@ A_1	data	    "PMWPMSPSMPS4"	; message, plus carriage return
 	constant    options_1=.3	; length of data
 myWrong data	    "Incorrect!"	; message, plus carriage return
 	constant    myWrong_1=.10	; length of data
-myCorrect data	    "Correct!"	; message, plus carriage return
+myCorrect data	    "Correct!"		; message, plus carriage return
 	constant    myCorrect_1=.8	; length of data
 	
 Q_A    code	
 	
 Q_A_Setup
+	movlw	0x10
+	movwf	fifty_fifty
+	
+	movlw	0x20
+	movwf	call_friend
+	
+	movlw	0x30
+	movwf	audience
+	    
 	lfsr	FSR0, myAnswers ; loads data in
 	lfsr	FSR1, myAnswers ; loads data in
 
@@ -51,11 +70,125 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	bra	loop_a
 	
 	return
+;########################## Special Functions ##############################
 
+fifty_fifty
+	movf	INDF1, W
+	
+	movff	A_ans_var,answer_add
+	subwf	answer_add,1
+	BZ	fif_A
+	
+	movff	B_ans_var,answer_add
+	subwf	answer_add,1
+	BZ	fif_B
+	
+	movff	C_ans_var,answer_add
+	subwf	answer_add,1
+	BZ	fif_C
+
+	movff	D_ans_var,answer_add
+	subwf	answer_add,1
+	BZ	fif_D
+
+fif_A	call	rand_0_to_2
+	subwf	zero,1
+	BZ	clr_BC	
+	subwf	one,1
+	BZ	clr_BD	
+	subwf	two,1
+	BZ	clr_CD	
+	
+fif_B	call	rand_0_to_2
+	subwf	zero,1
+	BZ	clr_AC	
+	subwf	one,1
+	BZ	clr_AD	
+	subwf	two,1
+	BZ	clr_CD
+	
+fif_C	call	rand_0_to_2
+	subwf	zero,1
+	BZ	clr_AB	
+	subwf	one,1
+	BZ	clr_AD	
+	subwf	two,1
+	BZ	clr_BD
+	
+fif_D	call	rand_0_to_2
+	subwf	zero,1
+	BZ	clr_AB	
+	subwf	one,1
+	BZ	clr_AC	
+	subwf	two,1
+	BZ	clr_BC
+	
+clr_AB	call	LCD_Clear_A
+	call	LCD_Clear_B
+	bra	fifty_fifty_done
+
+clr_AC	call	LCD_Clear_A
+	call	LCD_Clear_C
+	bra	fifty_fifty_done
+	
+clr_AD	call	LCD_Clear_A
+	call	LCD_Clear_D
+	bra	fifty_fifty_done
+	
+clr_BC	call	LCD_Clear_B
+	call	LCD_Clear_C
+	bra	fifty_fifty_done
+
+clr_BD	call	LCD_Clear_B
+	call	LCD_Clear_D
+	bra	fifty_fifty_done
+	
+clr_CD	call	LCD_Clear_C
+	call	LCD_Clear_D
+	bra	fifty_fifty_done
+
+fifty_fifty_done
+	call	wait_press
+	call	Check_Answers
+
+	return
+	
+call_friend
+	
+	
+	call	wait_press
+	call	Check_Answers
+
+	return
+	
+audience
+	movf	INDF1, W
+	call	UART_Transmit_Byte
+	movlw	0x0A
+	call	UART_Transmit_Byte
+	
+	call	wait_press
+	call	Check_Answers
+
+	return
+	
 ;########################## Check Answers ##############################
+	
 Check_Answers
-	movff	POSTINC1,0x55
-	subwf	0x55
+	movff	fifty_fifty_var,answer_add
+	subwf	answer_add,1
+	BZ	fifty_fifty	;change to special function 
+	
+	movff	call_friend_var,answer_add
+	subwf	answer_add,1
+	BZ	call_friend
+
+	movff	audience_var,answer_add
+	subwf	answer_add,1
+	BZ	audience
+
+	movff	POSTINC1,answer_add
+	subwf	answer_add
 	BZ	Correct_Answer
 
 
@@ -117,6 +250,7 @@ loop_c 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	return
 	
 ;######################## Send Question to Screen #############################
+	
 Send_UART_Question_1
 	lfsr	FSR0, myArray	; Load FSR0 with address in RAM	
 	movlw	upper(myTable)	; address of data in PM
