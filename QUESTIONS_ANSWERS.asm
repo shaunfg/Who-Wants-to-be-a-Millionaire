@@ -21,6 +21,7 @@ A_ans_var    res 1
 B_ans_var    res 1
 C_ans_var    res 1
 D_ans_var    res 1
+W_check	    res 1
   
 tables	udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
 myArray res 0x80    ; reserve 128 bytes for message data
@@ -44,13 +45,22 @@ Q_A    code
 	
 Q_A_Setup
 	movlw	0x10
-	movwf	fifty_fifty
+	movwf	fifty_fifty_var
 	
 	movlw	0x20
-	movwf	call_friend
+	movwf	call_friend_var
 	
 	movlw	0x30
-	movwf	audience
+	movwf	audience_var
+	
+	movlw	0x0A
+	movwf	A_ans_var
+	movlw	0x0B
+	movwf	B_ans_var
+	movlw	0x0C
+	movwf	C_ans_var
+	movlw	0x0D
+	movwf	D_ans_var
 	    
 	lfsr	FSR0, myAnswers ; loads data in
 	lfsr	FSR1, myAnswers ; loads data in
@@ -74,6 +84,7 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 
 fifty_fifty
 	movf	INDF1, W
+	;movwf	W_check
 	
 	movff	A_ans_var,answer_add
 	subwf	answer_add,1
@@ -148,6 +159,7 @@ clr_CD	call	LCD_Clear_C
 	bra	fifty_fifty_done
 
 fifty_fifty_done
+	call	delay_L
 	call	wait_press
 	call	Check_Answers
 

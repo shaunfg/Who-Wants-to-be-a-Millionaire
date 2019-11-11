@@ -44,7 +44,7 @@ Key_In
 
 	call	check_row	   ;
 
-output	movwf	0x15
+output	
 	return
 	
 check_row ;row data is stored in 0x10

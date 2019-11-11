@@ -39,13 +39,12 @@ rand_0_to_2
 	movf	TMR0L, W
 
 remainder_loop
-	movwf	rando
+movwf	rando
 	movlw	0x03
 	subwf	rando,1 ; stores in variable
 	movf	rando,W
 	cpfsgt	three
 	bra	remainder_loop
-	movwf	0x50
 	return
 
 delay_L	movlw	0xff
