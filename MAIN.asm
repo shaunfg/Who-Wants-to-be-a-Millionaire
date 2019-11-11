@@ -4,7 +4,7 @@
 	extern  LCD_Setup, LCD_Write_Message	    ; external LCD subroutines
 	extern	LCD_Write_Hex,LCD_Send_Byte_D,Send_Ans_LCD	    ; external LCD subroutines
 ;	extern	Convert_Hex_Decimal,LCD_Set_Cursor
-	extern	Key_In,wait_press,LED_Setup, LCD_Clear_Display
+	extern	Key_In,wait_press,LED_Setup,LCD_Clear_Display
 	extern	Q_A_Setup,Send_UART_Question_1,Check_Answers, delay_L
 	extern	tools_setup,rand_0_to_2
 	extern	Send_Question
