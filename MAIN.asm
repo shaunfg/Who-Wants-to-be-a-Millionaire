@@ -7,6 +7,7 @@
 	extern	Key_In,wait_press,LED_Setup, LCD_Clear_Display
 	extern	Q_A_Setup,Send_UART_Question_1,Check_Answers, delay_L
 	extern	tools_setup,rand_0_to_2
+	extern	Send_Question
  
 rst	code	0    ; reset vector
 	goto	start
@@ -39,7 +40,7 @@ start	movlw	0x03
 
 
 	
-	call	Send_UART_Question_1
+	call	Send_Question
 	call	Send_Ans_LCD
 	
 	call	wait_press

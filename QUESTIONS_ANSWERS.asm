@@ -9,6 +9,7 @@
 	extern	wait_press, LCD_Clear_Display, LED_Correct,delay_L
 	extern	rand_0_to_2
 	extern	zero,one,two,three
+	global	Send_Question
 	
 
 acs0	udata_acs   ; reserve data space in access ram
@@ -30,8 +31,9 @@ myAnswers res 0x10    ; reserve 128 bytes for message data
 pdata	code    ; a section of programme memory for storing data
 	; ******* myTable, data in programme memory, and its length *****v
 	
-myTable data	    "What are the Initials of Blackett?\n"	; message, plus carriage return
-	constant    myTable_l=.35	; length of data
+myTable data	    "What are the Initials of Blackett?    \nWhat are the Initials of Tlackett?    \n"	; message, plus carriage return
+	constant    myTable_l=.80	; length of data
+	constant    n_characters=.40	; including 1 character for \n
 answers db	    0x0A,0x0B,0x0C,0x0D,0x0A,0x0B,0x0C,0x0D 	; message, plus carriage return
 	constant    n_answers=.8	; length of data
 A_1	data	    "PMWPMSPSMPS4"	; message, plus carriage return
@@ -271,10 +273,11 @@ Send_UART_Question_1
 	movwf	TBLPTRH		; load high byte to TBLPTRH
 	movlw	low(myTable)	; address of data in PM
 	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	myTable_l	; bytes to read
+Send_Question	
+	movlw	n_characters	; bytes to read
 	movwf 	counter		; our counter register
-
-loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
+loop
+	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
 	decfsz	counter		; count down to zero
 	bra	loop		; keep going until finished

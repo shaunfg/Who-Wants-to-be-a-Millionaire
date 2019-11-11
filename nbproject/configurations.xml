@@ -20,6 +20,7 @@
       <itemPath>QUESTIONS_ANSWERS.asm</itemPath>
       <itemPath>TOOLS.asm</itemPath>
       <itemPath>test.asm</itemPath>
+      <itemPath>INTERRUPT.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
