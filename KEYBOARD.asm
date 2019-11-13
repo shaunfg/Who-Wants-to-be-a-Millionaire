@@ -1,7 +1,8 @@
 	#include p18f87k22.inc
 	
-	global	Key_In, wait_press
+	global	Key_In, wait_press, wait_press_main
 	extern	zero,one,two,three
+	extern	DAC_setup
 
 acs2	udata_acs   ; reserve data space in access ram
 dly1	res 1
@@ -44,7 +45,7 @@ Key_In
 
 	call	check_row	   ;
 
-output	movwf	0x15
+output	
 	return
 	
 check_row ;row data is stored in 0x10
@@ -115,7 +116,10 @@ delay	movff	dly1, dly3
 delay1	decfsz dly3 ; decrement until zero
 	bra delay1
 	return
-	
+
+wait_press_main
+	call	DAC_setup
+
 wait_press
 	movlw	0x0
 	movwf	zero

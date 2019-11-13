@@ -1,6 +1,6 @@
 	#include p18f87k22.inc
 	
-	;global	LED_Setup, Q_CNT, LED_Correct
+	global	LED_Setup, Q_CNT, LED_Correct
 	
 acs5	udata_acs   ; reserve data space in access ram
 Q_CNT	res 1
@@ -14,7 +14,8 @@ LED_Setup
 	movlw	0x00
 	movwf	TRISD, A
 	movwf	Q_CNT
-
+	movwf	Light_dis
+	movwf	PORTD
 	return
 	
 LED_Correct

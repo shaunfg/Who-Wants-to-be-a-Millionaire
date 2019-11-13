@@ -17,7 +17,8 @@ int_hi	code	0x0008		; high vector, no low vector
 	incf	timer		; increment PORTD
 	movlw	0x14		; 20 second timer!!!
 	cpfslt	timer
-	bra	end_game
+	call	end_game
+	
 	bcf	INTCON,TMR0IF	; clear interrupt flag
 	movf	save_w,W
 	retfie	FAST		; fast return from interrupt

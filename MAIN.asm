@@ -6,8 +6,8 @@
 ;	extern	Convert_Hex_Decimal,LCD_Set_Cursor
 	extern	Key_In,wait_press,LED_Setup,LCD_Clear_Display
 	extern	Q_A_Setup,Send_UART_Question_1,Check_Answers, delay_L
-	extern	tools_setup,rand_0_to_2
- 
+	extern	tools_setup,rand_0_to_2, Send_Next_Question, wait_press_main
+	extern	Buzzer_Setup,Send_UART_Question_5, Send_Next_Answer
 rst	code	0    ; reset vector
 	goto	start
 
@@ -20,6 +20,7 @@ start	movlw	0x03
 	subwf	0x80,0 ; stores in W
 	movwf	0x55
 	
+	
 	bcf	EECON1, CFGS	; point to Flash program memory  
 	bsf	EECON1, EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
@@ -27,20 +28,30 @@ start	movlw	0x03
 	call	Q_A_Setup
 	call	LED_Setup
 	call	tools_setup
-	
-	call	rand_0_to_2
+	call	Buzzer_Setup
+	;call	rand_0_to_2
 
-	call	Send_UART_Question_1
-	call	Send_Ans_LCD
+	; call	Load_Question_Set_1
 	
-	call	wait_press
+	; Question 1
+	call	Send_UART_Question_1
+	call	Send_Ans_LCD	
+	call	wait_press_main
 	call	Check_Answers
+	
+	call	Next_Question
+	call	Next_Question
+	call	Next_Question
 
-	call	Send_UART_Question_1
-	call	Send_Ans_LCD
+	; Question 5
+	call	Send_UART_Question_5
+	call	Send_Next_Answer
+	call	wait_press_main
+	call	Check_Answers	
 	
-	call	wait_press
-	call	Check_Answers
+	call	Next_Question
+	call	Next_Question
+	call	Next_Question
 	
 	;check if answer is correct,store values, check if same, comapare & branch
 	; Wrong answer subroutine that ends game
@@ -50,5 +61,11 @@ start	movlw	0x03
 	;LCD initialisation
 	;UART initialisation
 	;Port D for LED control (prize)
-
+Next_Question
+	call	Send_Next_Question
+	call	Send_Next_Answer
+	call	wait_press_main
+	call	Check_Answers	
+	return
+	
 	end
