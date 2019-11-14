@@ -8,6 +8,10 @@
 	extern	Q_A_Setup,Send_UART_Question_1,Check_Answers, delay_L
 	extern	tools_setup,rand_0_to_2, Send_Next_Question, wait_press_main
 	extern	Buzzer_Setup,Send_UART_Question_5, Send_Next_Answer
+	extern	timer0_setup
+	extern 	ext_memory_setup, ext_store, ext_read
+	extern	add_H,add_M,add_L,data_RT
+
 rst	code	0    ; reset vector
 	goto	start
 
@@ -28,10 +32,20 @@ start	movlw	0x03
 	call	Q_A_Setup
 	call	LED_Setup
 	call	tools_setup
-	call	Buzzer_Setup
-	;call	rand_0_to_2
+	;call	timer0_setup
+	call	ext_memory_setup
 
-	; call	Load_Question_Set_1
+	movlw	0x05
+	movwf	add_L
+	
+	movlw	0xab
+	movwf	data_RT
+	call	ext_store
+	
+	call	delay_L
+	
+	call	ext_read
+	movff	data_RT,0x45
 	
 	; Question 1
 	call	Send_UART_Question_1
@@ -67,5 +81,5 @@ Next_Question
 	call	wait_press_main
 	call	Check_Answers	
 	return
-	
+
 	end
