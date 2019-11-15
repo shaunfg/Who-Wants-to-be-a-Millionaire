@@ -21,9 +21,9 @@ LCD_hex_tmp res 1   ; reserve 1 byte for variable LCD_hex_tmp
 LCD	code
     
 LCD_Setup
-	clrf    LATB
+	clrf    LATH
 	movlw   b'11000000'	    ; RB0:5 all outputs
-	movwf	TRISB
+	movwf	TRISH
 	movlw   .40
 	call	LCD_delay_ms	; wait 40ms for LCD to start up properly
 	movlw	b'00110000'	; Function set 4-bit
@@ -234,13 +234,13 @@ LCD_Send_Byte_I		    ; Transmits byte stored in W to instruction reg
 	movwf   LCD_tmp
 	swapf   LCD_tmp,W   ; swap nibbles, high nibble goes first
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB	    ; output data bits to LCD
-	bcf	LATB, LCD_RS	; Instruction write clear RS bit
+	movwf   LATH	    ; output data bits to LCD
+	bcf	LATH, LCD_RS	; Instruction write clear RS bit
 	call    LCD_Enable  ; Pulse enable Bit 
 	movf	LCD_tmp,W   ; swap nibbles, now do low nibble
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB	    ; output data bits to LCD
-	bcf	LATB, LCD_RS    ; Instruction write clear RS bit
+	movwf   LATH	    ; output data bits to LCD
+	bcf	LATH, LCD_RS    ; Instruction write clear RS bit
         call    LCD_Enable  ; Pulse enable Bit 
 	return
 
@@ -248,13 +248,13 @@ LCD_Send_Byte_D		    ; Transmits byte stored in W to data reg
 	movwf   LCD_tmp
 	swapf   LCD_tmp,W   ; swap nibbles, high nibble goes first
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB	    ; output data bits to LCD
-	bsf	LATB, LCD_RS	; Data write set RS bit
+	movwf   LATH	    ; output data bits to LCD
+	bsf	LATH, LCD_RS	; Data write set RS bit
 	call    LCD_Enable  ; Pulse enable Bit 
 	movf	LCD_tmp,W   ; swap nibbles, now do low nibble
 	andlw   0x0f	    ; select just low nibble
-	movwf   LATB	    ; output data bits to LCD
-	bsf	LATB, LCD_RS    ; Data write set RS bit	    
+	movwf   LATH	    ; output data bits to LCD
+	bsf	LATH, LCD_RS    ; Data write set RS bit	    
         call    LCD_Enable  ; Pulse enable Bit 
 	movlw	.10	    ; delay 40us
 	call	LCD_delay_x4us
@@ -269,7 +269,7 @@ LCD_Enable	    ; pulse enable bit LCD_E for 500ns
 	nop
 	nop
 	nop
-	bsf	    LATB, LCD_E	    ; Take enable high
+	bsf	    LATH, LCD_E	    ; Take enable high
 	nop
 	nop
 	nop
@@ -277,7 +277,7 @@ LCD_Enable	    ; pulse enable bit LCD_E for 500ns
 	nop
 	nop
 	nop
-	bcf	    LATB, LCD_E	    ; Writes data to LCD
+	bcf	    LATH, LCD_E	    ; Writes data to LCD
 	return
     
 ; ** a few delay routines below here as LCD timing can be quite critical ****

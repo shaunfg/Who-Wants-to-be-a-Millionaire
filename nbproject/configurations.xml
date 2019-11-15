@@ -19,10 +19,10 @@
       <itemPath>LCD.asm</itemPath>
       <itemPath>QUESTIONS_ANSWERS.asm</itemPath>
       <itemPath>TOOLS.asm</itemPath>
-      <itemPath>INTERRUPT.asm</itemPath>
-      <itemPath>BUZZER.asm</itemPath>
       <itemPath>LED_DISPLAY.asm</itemPath>
       <itemPath>EXTERNAL_MEMORY.asm</itemPath>
+      <itemPath>INTERRUPT.asm</itemPath>
+      <itemPath>GLCD.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

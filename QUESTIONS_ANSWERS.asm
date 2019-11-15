@@ -13,20 +13,20 @@
 	
 
 acs0	udata_acs   ; reserve data space in access ram
-counter	    res 1   ; reserve one byte for a counter variable
-answer_add  res 1
-fifty_fifty_var res 1
-call_friend_var res 1
-audience_var    res 1
-A_ans_var    res 1
-B_ans_var    res 1
-C_ans_var    res 1
-D_ans_var    res 1
-W_check	    res 1
-Q_add_H	    res 1
-Q_add_L	    res 1
-A_add_H	    res 1
-A_add_L	    res 1
+counter	    res 1   ; counter to iterate through messages when sending
+answer_add  res 1   ; address of correct answer
+fifty_fifty_var res 1	; stores 0x10, which corresponds to the recorded button press on keypad
+call_friend_var res 1	; stores 0x20, which corresponds to the recorded button press on keypad
+audience_var    res 1	; stores 0x30, which corresponds to the recorded button press on keypad
+A_ans_var    res 1	; stores 0x0A, which corresponds to the recorded button press on keypad
+B_ans_var    res 1	; stores 0x0B, which corresponds to the recorded button press on keypad
+C_ans_var    res 1	; stores 0x0C, which corresponds to the recorded button press on keypad
+D_ans_var    res 1	; stores 0x0D, which corresponds to the recorded button press on keypad
+W_check	    res 1	; variable to check value stored in W by using 'movwf W_check'
+Q_add_H	    res 1	; stores address of current question (high)
+Q_add_L	    res 1	; stores address of current question (low)
+A_add_H	    res 1	; stores address of answer to current question (high)
+A_add_L	    res 1	; stores address of answer to current question (low)
 	  
 questions1  udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
 myArray1    res 0x80    ; reserve 128 bytes for message data
@@ -47,35 +47,43 @@ myAnswers   res 0x10    ; reserve 128 bytes for message data
 pdata	code    ; a section of programme memory for storing data
 	; ******* myTable, data in programme memory, and its length *****v
 	
+	; Stores questions 1-4 in blocks of 40 characters
 myTable data	    "What are the Initials of Blackett?     \nHow old is the Queen Elizabeth?        \nHow many floors are there in Blackett? \nHow tall is the Albert Memorial?       \n"
 	constant    myTable_l=.40*4	; length of data
 	constant    n_question=.40
 	
+	; Stores questions 5-8 in blocks of 40 characters	
 myTable2 data	    "What is 0x20 times 0x20 in HEX?        \nWhen did Blackett win the Nobel Prize? \nWhat is tower bridge's google rating?  \nHow many acres is hyde park?           \n"	; message, plus carriage return
 	constant    myTable_l=.40*4	; length of data
 	constant    n_question=.40
 	
-answers db	    0x0B,0x0C,0x0C,0x0D,0x0A,0x0A,0x0A,0x0D 	; message, plus carriage return
+	; Stores all keypad response answers in hex (correlates to definitions in KEYBOARD.asm) 
+answers db	    0x0B,0x0C,0x0C,0x0D,0x0A,0x0A,0x0A,0x0D 
 	constant    n_answers=.8	; length of data
+	
+	; Stores all answers options in blocks of 4 characters (limited by LCD size)
 A_1	data	    "PMW PMS PSM PS4 89  91  93  85  10  11  12  13  32m 45m 60m 53m x400x2A0x420x36019481901192319604.7 5.0 3.5 4.3 480 270 300 350 "	; message, plus carriage return
 	constant    options_1=.4	; length of data
-myWrong data	    "Incorrect!"	; message, plus carriage return
+	
+	; Stores 'Incorrect!' message
+myWrong data	    "Incorrect!"	
 	constant    myWrong_1=.10	; length of data
-myCorrect data	    "Correct!"		; message, plus carriage return
+	
+	; Stores 'Correct!' message
+myCorrect data	    "Correct!"		
 	constant    myCorrect_1=.8	; length of data
+	
 	
 Q_A    code	
 	
 Q_A_Setup
+	; defines what the button presses correlate to
 	movlw	0x10
-	movwf	fifty_fifty_var
-	
+	movwf	fifty_fifty_var	
 	movlw	0x20
 	movwf	call_friend_var
-	
 	movlw	0x30
 	movwf	audience_var
-	
 	movlw	0x0A
 	movwf	A_ans_var
 	movlw	0x0B
@@ -85,6 +93,7 @@ Q_A_Setup
 	movlw	0x0D
 	movwf	D_ans_var
 	    
+	; Loads relevant data (questions, options and answer) from PM into DM
 	lfsr	FSR0, myAnswers ; loads data in
 	lfsr	FSR1, myAnswers ; loads data in
 
@@ -167,9 +176,9 @@ Send_Next_Question
 
 ; fifty-fifty special function
 fifty_fifty
-	movf	INDF1, W
-	;movwf	W_check
+	movf	INDF1, W ; moves correct answer into W to ensure that correct answer is not removed by 50-50.
 	
+	; checks what the correct answer is
 	movff	A_ans_var,answer_add
 	subwf	answer_add,1
 	BZ	fif_A
@@ -186,6 +195,7 @@ fifty_fifty
 	subwf	answer_add,1
 	BZ	fif_D
 
+	; clears 2 random answers that are not the correct answer.
 fif_A	call	rand_0_to_2
 	subwf	zero,1
 	BZ	clr_BC	
@@ -242,24 +252,24 @@ clr_CD	call	LCD_Clear_C
 	call	LCD_Clear_D
 	bra	fifty_fifty_done
 
-fifty_fifty_done
+fifty_fifty_done    ; returns to wait for button input by user
 	call	delay_L
 	call	wait_press
 	call	Check_Answers
 
 	return
 	
-; Call a friend special function 
-call_friend
+ 
+call_friend	; Call a friend special function
 	call	wait_press
 	call	Check_Answers
 
 	return
 	
-audience
+audience    ; transmitts the correct answer via UART
 	movf	INDF1, W
 	call	UART_Transmit_Byte
-	movlw	0x0A
+	movlw	0x0A	; line break
 	call	UART_Transmit_Byte
 	
 	call	wait_press

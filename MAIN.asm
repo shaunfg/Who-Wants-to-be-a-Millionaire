@@ -7,8 +7,9 @@
 	extern	Key_In,wait_press,LED_Setup,LCD_Clear_Display
 	extern	Q_A_Setup,Send_UART_Question_1,Check_Answers, delay_L
 	extern	tools_setup,rand_0_to_2, Send_Next_Question, wait_press_main
-	extern	Buzzer_Setup,Send_UART_Question_5, Send_Next_Answer
-	extern	timer0_setup
+	extern	Send_UART_Question_5, Send_Next_Answer
+	;extern	timer0_setup,
+	extern	DAC_setup, DAC_setup_2
 	extern 	ext_memory_setup, ext_store, ext_read
 	extern	add_H,add_M,add_L,data_RT
 
@@ -29,32 +30,22 @@ start	movlw	0x03
 	bsf	EECON1, EEPGD 	; access Flash program memory
 	call	UART_Setup	; setup UART
 	call	LCD_Setup	; setup LCD
-	call	Q_A_Setup
-	call	LED_Setup
-	call	tools_setup
+	call	Q_A_Setup	; setup Questions and Answers
+	call	LED_Setup	; setup question indication LED
+	call	tools_setup	; setup useful tools (delay)
+	call	ext_memory_setup    ; setup external memory (FRAM 2 Click)
+	;call	DAC_setup
+	;call	DAC_setup_2
 	;call	timer0_setup
-	call	ext_memory_setup
 
-	;movlw	0x06
-	;movwf	add_L
-	
-	;movlw	0x23
-	;movwf	data_RT
-	;call	ext_store
-	
-	movlw	0x06
-	movwf	add_L
-	
-	call	ext_read
-	movff	data_RT,0x45
-	
 	; Question 1
 	call	Send_UART_Question_1
 	call	Send_Ans_LCD	
 	call	wait_press_main
 	call	Check_Answers
 	
-	call	Next_Question
+	; Questions 2-4
+	call	Next_Question	    
 	call	Next_Question
 	call	Next_Question
 
@@ -63,7 +54,8 @@ start	movlw	0x03
 	call	Send_Next_Answer
 	call	wait_press_main
 	call	Check_Answers	
-	
+
+	; Questions 6-8
 	call	Next_Question
 	call	Next_Question
 	call	Next_Question
@@ -76,11 +68,12 @@ start	movlw	0x03
 	;LCD initialisation
 	;UART initialisation
 	;Port D for LED control (prize)
-Next_Question
-	call	Send_Next_Question
-	call	Send_Next_Answer
-	call	wait_press_main
-	call	Check_Answers	
+	
+Next_Question	; prepares the next question if the correct answer has been selected
+	call	Send_Next_Question  ; Sends next question to UART
+	call	Send_Next_Answer    ; Sends the options to LCD
+	call	wait_press_main	    ; Waits and records player response
+	call	Check_Answers	    ; Compares button press to check if correct
 	return
 
 	end

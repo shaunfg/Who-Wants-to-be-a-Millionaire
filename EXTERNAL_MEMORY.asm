@@ -43,9 +43,8 @@ ext_memory_setup
 	
 	movlw	0x00
 	movwf	add_H
-	movwf	add_L
-	movlw	0x01	
-	movwf	add_M	    ;question index starts from 1
+	movwf	add_M
+	movwf	add_L	
 	
 	bcf	PORTC,RC2
 	
@@ -54,7 +53,11 @@ ext_memory_setup
 	
 	bsf	PORTC,RC2
 	
+	call ext_mem_store_Q1_4
+	call ext_mem_store_Q5_8
+	
 	return
+	
 	
 	
 ext_mem_store_Q1_4
@@ -115,9 +118,12 @@ ext_mem_read_Q
 	lfsr	FSR0, my_ext_mem_Q
 	movlw	n_question
 	movwf	counter
+	movlw	0x00
+	movwf	add_L
 loop_ext_read
 	call	ext_read
 	movff	data_RT, POSTINC0
+	incf	add_L
 	decfsz	counter
 	bra	loop_ext_read	
 	
