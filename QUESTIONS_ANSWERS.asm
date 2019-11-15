@@ -1,8 +1,9 @@
 
 	#include p18f87k22.inc
 	
-	global	Send_UART_Question_1, Send_Ans_LCD,Check_Answers,Q_A_Setup
-	global	Send_Next_Question, Send_UART_Question_5, Send_Next_Answer
+	global	Send_Ans_LCD,Check_Answers,Q_A_Setup
+	global	Send_Next_Answer
+	global	Send_UART_Next_Question
 	extern	UART_Transmit_Message,LCD_Write_Message, UART_Transmit_Byte
 	extern	LCD_Cursor_A,LCD_Cursor_B,LCD_Cursor_C,LCD_Cursor_D
 	extern	LCD_Clear_A,LCD_Clear_B,LCD_Clear_C,LCD_Clear_D
@@ -10,6 +11,9 @@
 	extern	wait_press, LCD_Clear_Display, LED_Correct,delay_L
 	extern	rand_0_to_2
 	extern	zero,one,two,three
+	extern	my_ext_mem_Q, ext_mem_read_Q,add_H,add_M,add_L
+	extern	Q_CNT
+	
 	
 
 acs0	udata_acs   ; reserve data space in access ram
@@ -27,12 +31,6 @@ Q_add_H	    res 1	; stores address of current question (high)
 Q_add_L	    res 1	; stores address of current question (low)
 A_add_H	    res 1	; stores address of answer to current question (high)
 A_add_L	    res 1	; stores address of answer to current question (low)
-	  
-questions1  udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
-myArray1    res 0x80    ; reserve 128 bytes for message data
-
-questions2  udata	0x500    ; reserve data anywhere in RAM (here at 0x500)
-myArray2    res 0x80    ; reserve 128 bytes for message data
 	    
 wc_labels   udata	0x350    ; reserve data anywhere in RAM (here at 0x350)
 myResponse  res 0x20    ; reserve 128 bytes for message data
@@ -45,17 +43,7 @@ myAnswers   res 0x10    ; reserve 128 bytes for message data
 
  
 pdata	code    ; a section of programme memory for storing data
-	; ******* myTable, data in programme memory, and its length *****v
-	
-	; Stores questions 1-4 in blocks of 40 characters
-myTable data	    "What are the Initials of Blackett?     \nHow old is the Queen Elizabeth?        \nHow many floors are there in Blackett? \nHow tall is the Albert Memorial?       \n"
-	constant    myTable_l=.40*4	; length of data
-	constant    n_question=.40
-	
-	; Stores questions 5-8 in blocks of 40 characters	
-myTable2 data	    "What is 0x20 times 0x20 in HEX?        \nWhen did Blackett win the Nobel Prize? \nWhat is tower bridge's google rating?  \nHow many acres is hyde park?           \n"	; message, plus carriage return
-	constant    myTable_l=.40*4	; length of data
-	constant    n_question=.40
+	; ******* myTable, data in programme memory, and its length *****
 	
 	; Stores all keypad response answers in hex (correlates to definitions in KEYBOARD.asm) 
 answers db	    0x0B,0x0C,0x0C,0x0D,0x0A,0x0A,0x0A,0x0D 
@@ -95,7 +83,7 @@ Q_A_Setup
 	    
 	; Loads relevant data (questions, options and answer) from PM into DM
 	lfsr	FSR0, myAnswers ; loads data in
-	lfsr	FSR1, myAnswers ; loads data in
+	lfsr	FSR1, myAnswers 
 
 	movlw	upper(answers)	; address of data in PM
 	movwf	TBLPTRU		; load upper bits to TBLPTRU
@@ -115,62 +103,13 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 	
 ;######################## Send Question to Screen #############################
 
-Send_UART_Question_1
-	lfsr	FSR0, myArray1	; Load FSR0 with address in RAM	
-	movlw	upper(myTable)	; address of data in PM
-	movwf	TBLPTRU		; load upper bits to TBLPTRU
-	movlw	high(myTable)	; address of data in PM
-	movwf	TBLPTRH		; load high byte to TBLPTRH
-	movlw	low(myTable)	; address of data in PM
-	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	myTable_l	; bytes to read
-	movwf 	counter		; our counter register
-
-loop_b 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-	decfsz	counter		; count down to zero
-	bra	loop_b		; keep going until finished
-	
-	movlw	n_question	; output message to UART
-	lfsr	FSR2, myArray1
-	call	UART_Transmit_Message
-	movff	FSR2H, Q_add_H
-	movff	FSR2L, Q_add_L
-	return
-	
-Send_UART_Question_5
-	lfsr	FSR0, myArray2	; Load FSR0 with address in RAM	
-	movlw	upper(myTable2)	; address of data in PM
-	movwf	TBLPTRU		; load upper bits to TBLPTRU
-	movlw	high(myTable2)	; address of data in PM
-	movwf	TBLPTRH		; load high byte to TBLPTRH
-	movlw	low(myTable2)	; address of data in PM
-	movwf	TBLPTRL		; load low byte to TBLPTRL
-	movlw	myTable_l	; bytes to read
-	movwf 	counter		; our counter register
-
-loop 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
-	movff	TABLAT, POSTINC0; move data from TABLAT to (FSR0), inc FSR0	
-	decfsz	counter		; count down to zero
-	bra	loop		; keep going until finished
-	
-	movlw	n_question	; output message to UART
-	lfsr	FSR2, myArray2
-	call	UART_Transmit_Message
-	movff	FSR2H, Q_add_H
-	movff	FSR2L, Q_add_L
-	return
-	
-Send_Next_Question
-	movff	Q_add_L,FSR2L
-	movff	Q_add_H,FSR2H
-	movlw	n_question	; output message to UART
-	call	UART_Transmit_Message
-	movff	FSR2H, Q_add_H
-	movff	FSR2L, Q_add_L
-	
-	return		; goto current line in code
-	
+Send_UART_Next_Question
+	;movff	Q_CNT, add_M
+	;call	ext_mem_read_Q
+	;movlw	0x28	; output message to UART
+	;lfsr	FSR2, my_ext_mem_Q
+	;call	UART_Transmit_Message
+	return		
 
 ;########################## Special Functions ##############################
 

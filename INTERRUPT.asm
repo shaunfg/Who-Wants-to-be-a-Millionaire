@@ -16,7 +16,7 @@ int_hi	code	0x0008		; high vector, no low vector
 	btg	LATB,RB6
 	
 	incf	timer		; increment PORTD
-	movlw	0xFF		; 20 second timer!!!
+	movlw	0x14		; 20 second timer!!!
 	cpfslt	timer	
 	call	end_game
 	bcf	INTCON,TMR0IF	; clear interrupt flag
@@ -59,7 +59,7 @@ DAC_setup; question answer time
 	movlw	0x0
 	movwf	timer
 	
-	movlw	b'10000111'	; Set timer0 to 16-bit, Fosc/4/256
+	movlw	b'10000011'	; Set timer0 to 16-bit, Fosc/4/256
 	movwf	T1CON		; = 62.5KHz clock rate, approx 1sec rollover
 	bsf	INTCON,TMR1IE	; Enable timer0 interrupt
 	bsf	INTCON,GIE	; Enable all interrupts
