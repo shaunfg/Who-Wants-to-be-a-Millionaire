@@ -31,16 +31,16 @@ A_add_L	    res 1
 questions1  udata	0x400    ; reserve data anywhere in RAM (here at 0x400)
 myArray1    res 0x80    ; reserve 128 bytes for message data
 
-questions2  udata	0x500    ; reserve data anywhere in RAM (here at 0x400)
+questions2  udata	0x500    ; reserve data anywhere in RAM (here at 0x500)
 myArray2    res 0x80    ; reserve 128 bytes for message data
 	    
-wc_labels   udata	0x350    ; reserve data anywhere in RAM (here at 0x400)
+wc_labels   udata	0x350    ; reserve data anywhere in RAM (here at 0x350)
 myResponse  res 0x20    ; reserve 128 bytes for message data
 
-LCD_table   udata	0x600    ; reserve data anywhere in RAM (here at 0x400)
+LCD_table   udata	0x600    ; reserve data anywhere in RAM (here at 0x600)
 myLCD	    res 0x80    ; reserve 128 bytes for message data
   
-atables	    udata	0x300    ; reserve data anywhere in RAM (here at 0x400)
+atables	    udata	0x300    ; reserve data anywhere in RAM (here at 0x300)
 myAnswers   res 0x10    ; reserve 128 bytes for message data 	
 
  

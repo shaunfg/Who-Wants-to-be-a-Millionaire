@@ -22,6 +22,7 @@
       <itemPath>INTERRUPT.asm</itemPath>
       <itemPath>BUZZER.asm</itemPath>
       <itemPath>LED_DISPLAY.asm</itemPath>
+      <itemPath>EXTERNAL_MEMORY.asm</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

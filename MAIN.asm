@@ -35,14 +35,15 @@ start	movlw	0x03
 	;call	timer0_setup
 	call	ext_memory_setup
 
-	movlw	0x05
+	;movlw	0x06
+	;movwf	add_L
+	
+	;movlw	0x23
+	;movwf	data_RT
+	;call	ext_store
+	
+	movlw	0x06
 	movwf	add_L
-	
-	movlw	0xab
-	movwf	data_RT
-	call	ext_store
-	
-	call	delay_L
 	
 	call	ext_read
 	movff	data_RT,0x45
