@@ -4,6 +4,7 @@
     global  LCD_Set_Cursor, LCD_Clear_Display
     global  LCD_Cursor_A,LCD_Cursor_B,LCD_Cursor_C,LCD_Cursor_D,LCD_Cursor_Remove,LCD_Cursor_AnsC,LCD_Cursor_AnsW
     global  LCD_Clear_A,LCD_Clear_B,LCD_Clear_C,LCD_Clear_D
+    global  LCD_Cursor_MilT,LCD_Cursor_MilB,LCD_Cursor_tu
 acs0    udata_acs   ; named variables in access ram
 LCD_cnt_l   res 1   ; reserve 1 byte for variable LCD_cnt_l
 LCD_cnt_h   res 1   ; reserve 1 byte for variable LCD_cnt_h
@@ -181,7 +182,7 @@ clr_loop_D
 	return
 
 	
-;########################## Output Correct/Wrong ##############################
+;########################## Output Correct/Wrong/End ##############################
 LCD_Cursor_AnsC
 	movlw	b'11000100'	; display on, cursor on, blinking on
 	call	LCD_Send_Byte_I
@@ -190,6 +191,27 @@ LCD_Cursor_AnsC
 	return
 	
 LCD_Cursor_AnsW
+	movlw	b'11000011'	; display on, cursor on, blinking on
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Cursor_MilT
+	movlw	b'10000011'	; display on, cursor on, blinking on
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Cursor_MilB
+	movlw	b'11000010'	; display on, cursor on, blinking on
+	call	LCD_Send_Byte_I
+	movlw	.10		; wait 40us
+	call	LCD_delay_x4us
+	return
+	
+LCD_Cursor_tu
 	movlw	b'11000011'	; display on, cursor on, blinking on
 	call	LCD_Send_Byte_I
 	movlw	.10		; wait 40us

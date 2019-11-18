@@ -2,7 +2,7 @@
 	
 	global	Key_In, wait_press, wait_press_main
 	extern	zero,one,two,three
-	extern	DAC_setup
+	extern	Timer_setup,GLCD_show_progress,GLCD_clear
 
 acs2	udata_acs   ; reserve data space in access ram
 dly1	res 1
@@ -13,7 +13,7 @@ col	res 1
 		 
 KEYBOARD    code	
 
-    
+;######################## Keyboard Input measure #############################    
 Key_In	
 	movlw	0x0f		 ;set pins 0-3 to input, 4-7 as output
 	movwf	TRISE, A
@@ -107,6 +107,8 @@ col_4	movlw	0xE0
 S_4	movlw	0x40
 	BRA	output
 	
+;######################## Delay Routines #############################
+
 delay	movff	dly1, dly3
 	call delay1
 	decfsz dly2 ; decrement until zero
@@ -117,8 +119,9 @@ delay1	decfsz dly3 ; decrement until zero
 	bra delay1
 	return
 
+;######################## Wait for keyboard press #############################
 wait_press_main
-	call	DAC_setup
+	call	Timer_setup
 
 wait_press
 	movlw	0x0

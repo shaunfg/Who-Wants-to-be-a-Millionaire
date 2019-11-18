@@ -1,7 +1,7 @@
 	#include p18f87k22.inc
 
-	global  delay_L,t_dly1,t_dly2,t_dly3,tools_setup,rand_0_to_2
-	global	zero,one,two,three
+	global  delay_L,t_dly1,t_dly2,t_dly3,tools_setup,rand_0_to_2, rand_0_to_3
+	global	zero,one,two,three,four
 	
 acs4	udata_acs   ; reserve data space in access ram	
 t_dly1	res 1
@@ -12,6 +12,7 @@ zero	res 1
 one	res 1
 two	res 1	
 three	res 1
+four	res 1
 rando	res 1
 	
 tools    code
@@ -25,19 +26,23 @@ tools_setup
 	movwf	two
 	movlw	0x03
 	movwf	three
+	movlw	0x04
+	movwf	four
 	
-	movlw	b'11000001'	
-	movwf	T0CON	; = 4MHz clock rate, 
+	movlw	b'01000001';b'00000101'	
+	movwf	T3CON	; = 4MHz clock rate, 
 	return
 	
 rand_0_to_2
-	movlw	0x03
-	movwf	three
+	movlw	0x00
+	movwf	zero
+	movlw	0x01
+	movwf	one
 	movlw	0x02
 	movwf	two
-
-	movf	TMR0L, W
-
+	movlw	0x03
+	movwf	three
+	movf	TMR3L, W
 remainder_loop
 	movwf	rando
 	movlw	0x03
@@ -45,13 +50,33 @@ remainder_loop
 	movf	rando,W
 	cpfsgt	three
 	bra	remainder_loop
-	movwf	0x50
+	return
+	
+rand_0_to_3
+	movlw	0x00
+	movwf	zero
+	movlw	0x01
+	movwf	one
+	movlw	0x02
+	movwf	two
+	movlw	0x03
+	movwf	three
+	movlw	0x04
+	movwf	four
+	
+	movf	TMR3L, W
+remainder_loop_4
+	movwf	rando
+	movlw	0x04
+	subwf	rando,1 ; stores in variable
+	movf	rando,W
+	cpfsgt	four
+	bra	remainder_loop_4
 	return
 
-delay_L	movlw	0xff
+delay_L	movlw	0xc8
 	movwf	t_dly1
 	movwf	t_dly2
-	
 delayy 	movff	t_dly1, t_dly3
 	call	delay1
 	decfsz	t_dly2 ; decrement until zero

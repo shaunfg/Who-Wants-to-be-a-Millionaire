@@ -445,7 +445,7 @@ _LCD_write_ABCD
 
 	call	LCD_Cursor_Remove
 	return
-
+;######################## Display Time's Up on LCD #############################
 Time_Up_Disp
 	call	LCD_Clear_Display
 	lfsr	FSR0, myArray1; Load FSR0 with address in RAM	
@@ -471,7 +471,7 @@ loop_tu
 	call	LCD_Cursor_Remove
 	
 	return
-	
+;######################## Display End Game on LCD #############################
 End_Game_Disp
 	call	LCD_Clear_Display
 	lfsr	FSR0, myArray1; Load FSR0 with address in RAM	

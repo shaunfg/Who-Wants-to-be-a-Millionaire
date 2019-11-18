@@ -12,10 +12,10 @@ LED	code
 	
 LED_Setup
 	movlw	0x00
-	movwf	TRISD, A
+	movwf	TRISJ, A
 	movwf	Q_CNT
 	movwf	Light_dis
-	movwf	PORTD
+	movwf	PORTJ
 	return
 	
 LED_Correct
@@ -30,7 +30,7 @@ loop	rlncf	Light_add
 	
 	movf	Light_add,W
 	addwf	Light_dis,1
-	movff	Light_dis,PORTD
+	movff	Light_dis,PORTJ
 	
 	incf	Q_CNT
 	return
