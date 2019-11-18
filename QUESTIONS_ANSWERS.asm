@@ -104,11 +104,11 @@ loop_a 	tblrd*+			; one byte from PM to TABLAT, increment TBLPRT
 ;######################## Send Question to Screen #############################
 
 Send_UART_Next_Question
-	;movff	Q_CNT, add_M
-	;call	ext_mem_read_Q
-	;movlw	0x28	; output message to UART
-	;lfsr	FSR2, my_ext_mem_Q
-	;call	UART_Transmit_Message
+	movff	Q_CNT, add_M
+	call	ext_mem_read_Q
+	movlw	0x28	; output message to UART
+	lfsr	FSR2, my_ext_mem_Q
+	call	UART_Transmit_Message
 	return		
 
 ;########################## Special Functions ##############################
